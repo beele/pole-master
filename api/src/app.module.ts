@@ -9,12 +9,13 @@ import { AppService } from './app.service';
 import { FirebaseApp } from './auth/firebase-app';
 import { PreAuthMiddleware } from './auth/pre-auth-middleware';
 import { RoleAuthMiddleware } from './auth/role-auth-middleware';
-import { PoleService } from './poles/poles.service';
+import { PoleService } from './pole/pole.service';
 import { DatabaseService } from './db/db.service';
+import { PoleController } from './pole/pole.controller';
 
 @Module({
     imports: [],
-    controllers: [AppController],
+    controllers: [AppController, PoleController],
     providers: [AppService, FirebaseApp, DatabaseService, PoleService],
 })
 export class AppModule implements NestModule {

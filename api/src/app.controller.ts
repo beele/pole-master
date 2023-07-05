@@ -1,5 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
+import { PoleService } from './pole/pole.service';
+import { Pole } from '@prisma/client';
 
 @Controller()
 export class AppController {
@@ -8,11 +10,6 @@ export class AppController {
     @Get()
     getHello(): string {
         return this.appService.getHello();
-    }
-
-    @Get('/ping')
-    async ping(): Promise<string> {
-        return 'pong';
     }
 
     @Get('/secure/ping')

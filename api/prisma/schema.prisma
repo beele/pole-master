@@ -24,5 +24,4 @@ model Pole {
     maxPower Float
     connectorCount Int
     inUse Int
-    url String
 }

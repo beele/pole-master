@@ -7,7 +7,7 @@ import { DatabaseService } from 'src/db/db.service';
 export class PoleService {
     private browser: Promise<Browser>;
 
-    private poles: Pole[];
+    private readonly poles: Pole[];
 
     constructor(private dbService: DatabaseService) {
         this.browser = puppeteer.launch();
@@ -15,12 +15,14 @@ export class PoleService {
         this.poles = [];
 
         setImmediate(async () => {
-             // TODO: Get from DB!
-            await this.createPoles([
+            this.poles.push(...(await this.getExistingPoles()));
+
+            this.poles.push(...(await this.createNonExistingPoles([
                 'https://map.chargemap.com/pool/drawer/totalenergies-maurits-sabbelaan-antwerpen?locale=nl-nl',
                 'https://map.chargemap.com/pool/drawer/totalenergies-weerstandlaan-hoboken?locale=nl-nl',
                 'https://map.chargemap.com/pool/drawer/totalenergies-alfons-de-cockstraat-antwerpen?locale=nl-nl'
-            ]);
+            ])));
+
             await this.updatePoles();
 
             setInterval(async () => {
@@ -29,26 +31,57 @@ export class PoleService {
         });
     }
 
-    private async createPoles(urls: string[]): Promise<void> {
-        console.log('Creating poles...');
+    public get allPoles() {
+        return this.poles;
+    }
 
-        const existingPoles: Pole[] = await this.dbService.db.pole.findMany({ where: { id: { in: urls }}});
-        const existingPoleUrls: string[] = existingPoles.map((pole) => pole.id);
-        this.poles.push(...existingPoles);
+    // TODO: Admin only
+    public async createNewPoles(urls: string[]): Promise<Pole[]> {
+        const newPoles = await this.createNonExistingPoles(urls);
+        this.poles.push(...newPoles);
+        return newPoles;
+    }
 
+    public async getPolesForUser(user: any): Promise<Pole[]> {
+        // TODO: Implement!
+        //const existingPoles: Pole[] = await this.dbService.db.pole.findMany({ where: { id: { in: urls }}});
+        return [];
+    }
+
+    // TODO: Admin only
+    public async deletePoles(urls: string[]): Promise<void> {
+        const result = await this.dbService.db.pole.deleteMany({ where: { id: { in: urls }}});
+
+        if (result.count != urls.length) {
+            console.error('Not all poles were deleted!');
+            // TODO: What to do?
+        }
+    }
+
+    private async getExistingPoles(): Promise<Pole[]> {
+        return await this.dbService.db.pole.findMany();
+    }
+
+    private async createNonExistingPoles(urls: string[]): Promise<Pole[]> {
+        const existingPoleUrls: string[] = this.poles.map((pole) => pole.id);
         const polesToCreate = urls.filter((url) => {
             return existingPoleUrls.indexOf(url) === -1;
         });
 
+        const newlyCreatedPoles: Pole[] = [];
+
         for (const url of polesToCreate) {
             try {
-                this.poles.push(await this.createPole(url));
+                console.log('Creating pole...');
+                newlyCreatedPoles.push(await this.createPole(url));
             } catch (error) {
                 console.error('Could not create pole for: ' + url);
                 console.error(error);
                 continue;
             }
         }
+
+        return newlyCreatedPoles;
     }
 
     private async createPole(url: string): Promise<Pole> {
@@ -78,17 +111,16 @@ export class PoleService {
         page.close();
         console.log('Pole scraped');
 
-        const pole = await this.dbService.db.pole.create({ data: { id: url, name, address, type, connectorCount, maxPower, inUse: 0, url } });
+        const pole = await this.dbService.db.pole.create({ data: { id: url, name, address, type, connectorCount, maxPower, inUse: 0 } });
         console.log('Pole saved');
         return pole;
     }
 
     private async updatePoles(): Promise<void> {
-        console.log('Updating poles...');
-
         for (const pole of this.poles) {
             try {
-                await this.updatePoleData(pole);
+                console.log('Updating pole...');
+                await this.updatePole(pole);
             } catch (error) {
                 console.error('Could not update pole: ' + pole.name);
                 console.error(error);
@@ -97,9 +129,9 @@ export class PoleService {
         }
     }
 
-    private async updatePoleData(pole: Pole): Promise<void> {
+    private async updatePole(pole: Pole): Promise<void> {
         const page = await (await this.browser).newPage(); 
-        await page.goto(pole.url, { waitUntil: 'networkidle2' });
+        await page.goto(pole.id, { waitUntil: 'networkidle2' });
 
         const free: number = parseInt((await page.evaluate(() => { 
             return [...document.querySelectorAll('[data-testid="pool-stations"] p span.font-semibold')].map(el => el.textContent);
