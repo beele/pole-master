@@ -1,0 +1,20 @@
+.header {
+    text-align: center;
+    background-color: green;
+}
+
+.userMenu {
+    background-color: blue;
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+.button {
+    appearance: none;
+    background-color: white;
+    color: black;
+    border: none;
+    border-radius: 4px;
+    padding: 4px;
+}
