@@ -8,9 +8,4 @@ export class AppController {
     hello(): string {
         return 'Hello world';
     }
-
-    @Get('/secure/')
-    async secureHello(): Promise<string> {
-        return 'Secure Hello world';
-    }
 }

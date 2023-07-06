@@ -148,3 +148,7 @@ export class PoleService {
         console.log('Pole updated');
     }
 }
+
+export type PoleDto = {
+    url: string;
+}

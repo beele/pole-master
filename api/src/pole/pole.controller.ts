@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Post } from "@nestjs/common";
 import { Pole } from "@prisma/client";
-import { PoleService } from "./pole.service";
+import { PoleDto, PoleService } from "./pole.service";
 
 @Controller()
 export class PoleController {
@@ -21,8 +21,4 @@ export class PoleController {
     async deletePoles(@Body() poleDto: PoleDto[]): Promise<void> {
         this.poleService.deletePoles(poleDto.map(dto => dto.url));
     }
-}
-
-class PoleDto {
-    url: string;
 }
