@@ -5,8 +5,8 @@ import { DatabaseService } from 'src/db/db.service';
 
 @Injectable()
 export class PoleService {
-    private browser: Promise<Browser>;
-
+    
+    private readonly browser: Promise<Browser>;
     private readonly poles: Pole[];
 
     constructor(private dbService: DatabaseService) {
@@ -25,6 +25,8 @@ export class PoleService {
 
             await this.updatePoles();
 
+            // TODO: Better update logic!
+            // TODO: Split over different workers?
             setInterval(async () => {
                 await this.updatePoles();
             }, 5 * 60 * 1000);

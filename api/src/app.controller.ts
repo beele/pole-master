@@ -1,19 +1,16 @@
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
-import { PoleService } from './pole/pole.service';
-import { Pole } from '@prisma/client';
 
 @Controller()
 export class AppController {
-    constructor(private readonly appService: AppService) {}
+    constructor() {}
 
     @Get()
-    getHello(): string {
-        return this.appService.getHello();
+    hello(): string {
+        return 'Hello world';
     }
 
-    @Get('/secure/ping')
-    async securePing(): Promise<string> {
-        return 'pong';
+    @Get('/secure/')
+    async secureHello(): Promise<string> {
+        return 'Secure Hello world';
     }
 }

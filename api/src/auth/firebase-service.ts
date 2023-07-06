@@ -5,7 +5,7 @@ import firebaseConfig from './firebase-config';
 //https://kuros.in/typescript/nestjs-firebase-token-authentication/
 
 @Injectable()
-export class FirebaseApp {
+export class FirebaseService {
     private firebaseApp: firebase.app.App;
 
     constructor() {

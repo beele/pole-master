@@ -5,10 +5,8 @@ import {
     RequestMethod,
 } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { FirebaseApp } from './auth/firebase-app';
+import { FirebaseService } from './auth/firebase-service';
 import { PreAuthMiddleware } from './auth/pre-auth-middleware';
-import { RoleAuthMiddleware } from './auth/role-auth-middleware';
 import { PoleService } from './pole/pole.service';
 import { DatabaseService } from './db/db.service';
 import { PoleController } from './pole/pole.controller';
@@ -16,8 +14,11 @@ import { PoleController } from './pole/pole.controller';
 @Module({
     imports: [],
     controllers: [AppController, PoleController],
-    providers: [AppService, FirebaseApp, DatabaseService, PoleService],
+    providers: [FirebaseService, DatabaseService, PoleService],
 })
+
+// TODO: Guard: https://docs.nestjs.com/guards
+
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer): any {
         consumer.apply(PreAuthMiddleware).forRoutes({
