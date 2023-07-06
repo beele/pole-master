@@ -5,6 +5,7 @@ import { UserDto } from 'src/user/user.service';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
+
     constructor() {
         super({
             clientID: process.env.GOOGLE_CLIENT_ID,
@@ -13,7 +14,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
             scope: ['email', 'profile'],
         });
     }
-    async validate(
+
+    public async validate(
         accessToken: string,
         refreshToken: string,
         profile: any,

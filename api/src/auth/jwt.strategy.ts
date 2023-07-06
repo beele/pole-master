@@ -24,16 +24,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
         super({
             ignoreExpiration: false,
-            secretOrKey: 'totally-secret-jwt-key',
+            secretOrKey: process.env.JWT_SECRET,
             jwtFromRequest: extractJwtFromCookie,
         });
     }
 
     public async validate(payload: JwtPayload) {
-        console.log(payload);
         const user: User = await this.userService.findUserById(payload.sub);
-        console.log(user);
-
         if (!user) {
             throw new UnauthorizedException('Please log in to continue');
         }

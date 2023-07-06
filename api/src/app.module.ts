@@ -14,7 +14,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserService } from './user/user.service';
 
 @Module({
-    imports: [ConfigModule.forRoot(), JwtModule.register({secret: 'totally-secret-jwt-key'})],
+    imports: [ConfigModule.forRoot(), JwtModule.register({
+        global: true,
+        secret: process.env.JWT_SECRET,
+        signOptions: { expiresIn: '60s' },
+      }),],
     controllers: [AuthController, AppController, PoleController],
     providers: [GoogleStrategy, JwtStrategy, AuthService, DatabaseService, UserService, PoleService],
 })
