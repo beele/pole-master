@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { GoogleOAuthGuard } from './auth/google-oauth.guard';
 
 @Controller()
 export class AppController {
@@ -15,10 +15,5 @@ export class AppController {
     @UseGuards(JwtAuthGuard)
     helloSecured(): string {
         return 'Hello world secured';
-    }
-
-    @Get('firebase/ping')
-    helloFirebase(): string {
-        return 'Hello world secured firebase';
     }
 }

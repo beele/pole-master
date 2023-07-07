@@ -1,8 +1,5 @@
 import {
-    MiddlewareConsumer,
     Module,
-    NestModule,
-    RequestMethod,
 } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { PoleService } from './pole/pole.service';
@@ -11,12 +8,10 @@ import { PoleController } from './pole/pole.controller';
 import { ConfigModule } from '@nestjs/config';
 import { AuthController } from './auth/auth.controller';
 import { GoogleStrategy } from './auth/google.strategy';
-import { AuthService } from './auth/auth.service';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { UserService } from './user/user.service';
-import { FirebaseService } from './auth/firebase.service';
-import { PreAuthMiddleware } from './auth/pre-auth-middleware';
+import { JwtService } from './auth/jwt.service';
 
 @Module({
     imports: [
@@ -34,19 +29,11 @@ import { PreAuthMiddleware } from './auth/pre-auth-middleware';
     ],
     providers: [
         GoogleStrategy,
+        JwtService,
         JwtStrategy,
-        AuthService,
-        FirebaseService,
         DatabaseService,
         UserService,
         PoleService,
     ],
 })
-export class AppModule implements NestModule {
-    configure(consumer: MiddlewareConsumer): any {
-        consumer.apply(PreAuthMiddleware).forRoutes({
-            path: '/firebase/*',
-            method: RequestMethod.ALL,
-        });
-    }
-}
+export class AppModule {}

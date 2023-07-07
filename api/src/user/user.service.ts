@@ -32,4 +32,7 @@ export type UserDto = {
     firstName: string;
     lastName: string;
     picture?: string;
+    
+    accessToken: string;
+    refreshToken: string;
 }
