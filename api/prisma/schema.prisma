@@ -14,12 +14,19 @@ model User {
     id Int @id @default(autoincrement())
     provider String
     providerId String
+
     email String @unique
     firstName String
     lastName String
     picture String?
-    accessToken String?
-    refreshToken String?
+
+    role Role @default(USER)
+    poles Pole[]
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 model Pole {
@@ -30,4 +37,6 @@ model Pole {
     maxPower Float
     connectorCount Int
     inUse Int
+    
+    users User[]
 }

@@ -17,19 +17,15 @@ export type JwtSpecificPayload = {
     firstName: string;
     lastName: string;
     email: string;
-}
+};
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-    constructor(
-        private readonly userService: UserService,
-    ) {
+    constructor(private readonly userService: UserService) {
         super({
             ignoreExpiration: false,
             secretOrKey: process.env.JWT_SECRET,
-            jwtFromRequest: ExtractJwt.fromExtractors([
-                JwtStrategy.extractJWTFromCookie,
-            ]),
+            jwtFromRequest: ExtractJwt.fromExtractors([JwtStrategy.extractJWTFromCookie]),
         });
     }
 
@@ -45,8 +41,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         if (!user) {
             throw new UnauthorizedException('Please log in to continue');
         }
-
-        // TODO: Check claims?
 
         return {
             id: payload.providerId,
