@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Pole } from '@prisma/client';
+import { Pole, User } from '@prisma/client';
 import puppeteer, { Browser } from 'puppeteer';
 import { DatabaseService } from 'src/db/db.service';
 
@@ -9,7 +9,7 @@ export class PoleService {
     private readonly browser: Promise<Browser>;
     private readonly poles: Pole[];
 
-    constructor(private dbService: DatabaseService) {
+    constructor(private readonly dbService: DatabaseService) {
         this.browser = puppeteer.launch();
 
         this.poles = [];
@@ -37,20 +37,25 @@ export class PoleService {
         return this.poles;
     }
 
-    // TODO: Admin only
     public async createNewPoles(urls: string[]): Promise<Pole[]> {
         const newPoles = await this.createNonExistingPoles(urls);
         this.poles.push(...newPoles);
         return newPoles;
     }
 
-    public async getPolesForUser(user: any): Promise<Pole[]> {
-        // TODO: Implement!
-        //const existingPoles: Pole[] = await this.dbService.db.pole.findMany({ where: { id: { in: urls }}});
-        return [];
+    public async getPolesForUser(user: User): Promise<Pole[]> {
+        return await this.dbService.db.pole.findMany({ where: { users: { every: user }}});
     }
 
-    // TODO: Admin only
+    public async linkPoles(poleIds: number[], user: User): Promise<void> {
+        // TODO: Implement
+        //await this.dbService.db.user.update({ where: { id: user.id }, data: { poles: {  }}});
+    }
+
+    public async unlinkPoles(poleIds: number[], user: User): Promise<void> {
+        // TODO: Implement
+    }
+
     public async deletePoles(urls: string[]): Promise<void> {
         const result = await this.dbService.db.pole.deleteMany({ where: { id: { in: urls }}});
 

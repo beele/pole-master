@@ -1,9 +1,10 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpException, HttpStatus, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { JwtService } from './jwt.service';
 import { UserDto, UserService } from 'src/user/user.service';
 import { Role, User } from '@prisma/client';
+import { JwtAuthGuard, UserRole } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -49,5 +50,47 @@ export class AuthController {
         });
 
         return { accessToken, refreshToken };
+    }
+
+    // TODO: FIX: This auth guards requires a valid access_token! We might only have a refresh_token!
+    @Get('refresh')
+    @UseGuards(JwtAuthGuard)
+    @UserRole(Role.USER)
+    async generateAccessToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+        const refreshToken: string = req.cookies.refresh_token;
+        if (!refreshToken) {
+            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+        }
+
+        const decodedToken = this.jwtService.verifyToken(refreshToken);
+        if (!decodedToken) {
+            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+        }
+
+        const payload = {
+            firstName: decodedToken.firstName,
+            lastName: decodedToken.lastName,
+            email: decodedToken.email,
+            picture: decodedToken.picture,
+            role: decodedToken.role,
+        };
+
+        const newAccessToken = this.jwtService.generateToken(payload);
+        const newRefreshToken = this.jwtService.generateRefreshToken(payload);
+
+        res.cookie('access_token', newAccessToken, {
+            httpOnly: true,
+            maxAge: 3600000, //1h
+            sameSite: true,
+            secure: false,
+        });
+        res.cookie('refresh_token', newRefreshToken, {
+            httpOnly: true,
+            maxAge: 60480000, //7d
+            sameSite: 'lax',
+            secure: false,
+        });
+
+        return { newAccessToken, newRefreshToken };
     }
 }
