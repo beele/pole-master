@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import styles from './NavMenu.module.css';
+import { useUser } from '@/hooks/useUser';
 
 export default function NavMenu() {
-    const [user, setUser] = useState<{ firstName: string; lastName: string } | null>(null);
+    const user = useUser();
 
     const signIn = async () => {
         window.location.replace('http://localhost:3000/auth/google?redirect_uri=' + window.location);
@@ -13,27 +13,11 @@ export default function NavMenu() {
         window.location.replace('http://localhost:3000/auth/logout?redirect_uri=' + window.location);
     };
 
-    const getUser = async () => {
-        try {
-            const response = await fetch('http://localhost:3000/secure/user', { credentials: 'include' });
-            const body = await response.json();
-            return body;
-        } catch (error) {
-            return null;
-        }
-    };
-
-    useEffect(() => {
-        getUser()
-            .then((user) => {
-                if (user) {
-                    setUser(user as any);
-                }
-            })
-            .catch((error) => {
-                setUser(null);
-            });
-    }, []);
+    const testApi = async () => {
+        const response = await fetch('http://localhost:3000/poles/user', {credentials: 'include'});
+        const userPoles = await response.json();
+        alert(JSON.stringify(userPoles, null, 4));
+    }
 
     return (
         <header className={styles.header}>
@@ -53,7 +37,7 @@ export default function NavMenu() {
                     <button className={styles.button} onClick={signOut}>
                         Sign Out
                     </button>
-                    <button className={styles.button} onClick={getUser}>
+                    <button className={styles.button} onClick={testApi}>
                         Test API
                     </button>
                 </div>

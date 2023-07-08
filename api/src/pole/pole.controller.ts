@@ -19,6 +19,15 @@ export class PoleController {
 
     @UseGuards(JwtAuthGuard)
     @UserRole(Role.USER)
+    @Get('/poles/user')
+    async retrieveUserPoles(@Req() req: Request) {
+        const retrievedUser = await this.userService.getUserFromRequest(req);
+        return await this.poleService.getPolesForUser(retrievedUser);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @UserRole(Role.USER)
+    @Get('/poles/link')
     async linkPoles(@Req() req: Request, @Body() poleIds: number[]): Promise<void> {
         const retrievedUser = await this.userService.getUserFromRequest(req);
         this.poleService.linkPoles(poleIds, retrievedUser);
