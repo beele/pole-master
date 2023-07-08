@@ -5,7 +5,6 @@ import { DatabaseService } from 'src/db/db.service';
 
 @Injectable()
 export class PoleService {
-    
     private readonly browser: Promise<Browser>;
     private readonly poles: Pole[];
 
@@ -17,11 +16,13 @@ export class PoleService {
         setImmediate(async () => {
             this.poles.push(...(await this.getExistingPoles()));
 
-            this.poles.push(...(await this.createNonExistingPoles([
-                'https://map.chargemap.com/pool/drawer/totalenergies-maurits-sabbelaan-antwerpen?locale=nl-nl',
-                'https://map.chargemap.com/pool/drawer/totalenergies-weerstandlaan-hoboken?locale=nl-nl',
-                'https://map.chargemap.com/pool/drawer/totalenergies-alfons-de-cockstraat-antwerpen?locale=nl-nl'
-            ])));
+            this.poles.push(
+                ...(await this.createNonExistingPoles([
+                    'https://map.chargemap.com/pool/drawer/totalenergies-maurits-sabbelaan-antwerpen?locale=nl-nl',
+                    'https://map.chargemap.com/pool/drawer/totalenergies-weerstandlaan-hoboken?locale=nl-nl',
+                    'https://map.chargemap.com/pool/drawer/totalenergies-alfons-de-cockstraat-antwerpen?locale=nl-nl',
+                ])),
+            );
 
             await this.updatePoles();
 
@@ -44,20 +45,43 @@ export class PoleService {
     }
 
     public async getPolesForUser(user: User): Promise<Pole[]> {
-        return await this.dbService.db.pole.findMany({ where: { users: { every: user }}});
+        return await this.dbService.db.user
+            .findUnique({
+                where: {
+                    id: user.id,
+                },
+            })
+            .poles();
     }
 
     public async linkPoles(poleIds: number[], user: User): Promise<void> {
-        // TODO: Implement
-        //await this.dbService.db.user.update({ where: { id: user.id }, data: { poles: {  }}});
+        await this.dbService.db.user.update({
+            where: {
+                id: user.id,
+            },
+            data: {
+                poles: {
+                    connect: poleIds.map((poleId) => ({ id: poleId + '' })),
+                },
+            },
+        });
     }
 
     public async unlinkPoles(poleIds: number[], user: User): Promise<void> {
-        // TODO: Implement
+        await this.dbService.db.user.update({
+            where: {
+                id: user.id,
+            },
+            data: {
+                poles: {
+                    disconnect: poleIds.map((poleId) => ({ id: poleId + '' })),
+                },
+            },
+        });
     }
 
     public async deletePoles(urls: string[]): Promise<void> {
-        const result = await this.dbService.db.pole.deleteMany({ where: { id: { in: urls }}});
+        const result = await this.dbService.db.pole.deleteMany({ where: { id: { in: urls } } });
 
         if (result.count != urls.length) {
             console.error('Not all poles were deleted!');
@@ -92,33 +116,62 @@ export class PoleService {
     }
 
     private async createPole(url: string): Promise<Pole> {
-        const page = await (await this.browser).newPage(); 
+        const page = await (await this.browser).newPage();
         await page.goto(url, { waitUntil: 'networkidle2' });
 
-        const name: string = (await page.evaluate(() => {
-            return [...document.querySelectorAll('div.my-4')].map(el => el.textContent);
-        })).at(0) ?? 'UNKNOWN';
+        const name: string =
+            (
+                await page.evaluate(() => {
+                    return [...document.querySelectorAll('div.my-4')].map((el) => el.textContent);
+                })
+            ).at(0) ?? 'UNKNOWN';
 
-        const address: string = (await page.evaluate(() => {
-            return [...document.querySelectorAll('[data-testid="pool-stations"] ~ p')].map(el => el.textContent);
-        })).reduce((prev, cur) => prev + '/n' + cur) ?? 'UNKNOWN';
+        const address: string =
+            (
+                await page.evaluate(() => {
+                    return [...document.querySelectorAll('[data-testid="pool-stations"] ~ p')].map(
+                        (el) => el.textContent,
+                    );
+                })
+            ).reduce((prev, cur) => prev + '/n' + cur) ?? 'UNKNOWN';
 
-        const type: string = (await page.evaluate(() => {
-            return [...document.querySelectorAll('[data-testid="pool-stations"] img')].map(el => (el as HTMLImageElement).src.indexOf('type2') ? 'TYPE 2' : 'UNKNOWN');
-        })).at(0) ?? 'UNKNOWN';
+        const type: string =
+            (
+                await page.evaluate(() => {
+                    return [...document.querySelectorAll('[data-testid="pool-stations"] img')].map((el) =>
+                        (el as HTMLImageElement).src.indexOf('type2') ? 'TYPE 2' : 'UNKNOWN',
+                    );
+                })
+            ).at(0) ?? 'UNKNOWN';
 
-        const connectorCount: number = parseInt((await page.evaluate(() => { 
-            return [...document.querySelectorAll('[data-testid="pool-stations"] p span')].map(el => el.textContent.replace('/', ''));
-        })).at(-1)) ?? 0;
+        const connectorCount: number =
+            parseInt(
+                (
+                    await page.evaluate(() => {
+                        return [...document.querySelectorAll('[data-testid="pool-stations"] p span')].map((el) =>
+                            el.textContent.replace('/', ''),
+                        );
+                    })
+                ).at(-1),
+            ) ?? 0;
 
-        const maxPower: number = parseInt((await page.evaluate(() => { 
-            return [...document.querySelectorAll('[data-testid="pool-stations"] p')].map(el => el.textContent);
-        })).at(0)) ?? 0;
+        const maxPower: number =
+            parseInt(
+                (
+                    await page.evaluate(() => {
+                        return [...document.querySelectorAll('[data-testid="pool-stations"] p')].map(
+                            (el) => el.textContent,
+                        );
+                    })
+                ).at(0),
+            ) ?? 0;
 
         page.close();
         console.log('Pole scraped');
 
-        const pole = await this.dbService.db.pole.create({ data: { id: url, name, address, type, connectorCount, maxPower, inUse: 0 } });
+        const pole = await this.dbService.db.pole.create({
+            data: { id: url, name, address, type, connectorCount, maxPower, inUse: 0 },
+        });
         console.log('Pole saved');
         return pole;
     }
@@ -137,22 +190,29 @@ export class PoleService {
     }
 
     private async updatePole(pole: Pole): Promise<void> {
-        const page = await (await this.browser).newPage(); 
+        const page = await (await this.browser).newPage();
         await page.goto(pole.id, { waitUntil: 'networkidle2' });
 
-        const free: number = parseInt((await page.evaluate(() => { 
-            return [...document.querySelectorAll('[data-testid="pool-stations"] p span.font-semibold')].map(el => el.textContent);
-        })).at(0)) ?? 0;
+        const free: number =
+            parseInt(
+                (
+                    await page.evaluate(() => {
+                        return [...document.querySelectorAll('[data-testid="pool-stations"] p span.font-semibold')].map(
+                            (el) => el.textContent,
+                        );
+                    })
+                ).at(0),
+            ) ?? 0;
         pole.inUse = pole.connectorCount - free;
         page.close();
-        
+
         console.log('Pole re-scraped');
         if (isNaN(free)) {
             console.warn('Could not update pole: ' + pole.name);
             return;
         }
 
-        await this.dbService.db.pole.update({where: {id: pole.id}, data: {...pole}});
+        await this.dbService.db.pole.update({ where: { id: pole.id }, data: { ...pole } });
 
         console.log('Pole updated');
     }
@@ -160,4 +220,4 @@ export class PoleService {
 
 export type PoleDto = {
     url: string;
-}
+};
