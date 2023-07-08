@@ -31,6 +31,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
 
     private static extractJWTFromCookie(req: Request): string | null {
+        //console.log('A: JWT strat extract JWT');
+
+        if (req.cookies && req.url === '/auth/refresh' && req.cookies.refresh_token) {
+            return req.cookies.refresh_token;
+        }
         if (req.cookies && req.cookies.access_token) {
             return req.cookies.access_token;
         }
@@ -39,7 +44,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
     public async validate(payload: JwtPayload, done: VerifiedCallback) {
         // TODO: What kind of validation is needed here? The JWT-auth guard already checks a lot (invoked before this)!
-        console.log('A: JWT strat');
+        //console.log('A: JWT strat validate');
+
         const user: User = await this.userService.findUserByEmail(payload.email);
         if (!user) {
             throw new UnauthorizedException('Please log in to continue');

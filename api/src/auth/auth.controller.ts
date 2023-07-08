@@ -50,14 +50,10 @@ export class AuthController {
             secure: false,
         });
 
-        console.log('pre redirect!');
         const redirect = decodeURI(req.query['state'] as string ?? '/');
-
         res.redirect(redirect);
-        //return { accessToken, refreshToken };
     }
 
-    // TODO: FIX: This auth guards requires a valid access_token! We might only have a refresh_token!
     // TODO: FIX: Invalidate the received refresh token!
     @Get('refresh')
     @UseGuards(JwtAuthGuard)
@@ -96,7 +92,5 @@ export class AuthController {
             sameSite: 'lax',
             secure: false,
         });
-
-        //return { newAccessToken, newRefreshToken };
     }
 }

@@ -16,7 +16,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     canActivate(context: ExecutionContext) {
-        console.log('A: JWT guard');
+        //console.log('A: JWT guard canActivate');
 
         const requiredUserRole: Role = this.reflector.getAllAndOverride<Role>(USER_ROLE, [
             context.getHandler(),
@@ -25,7 +25,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
         const request: Request = context.switchToHttp().getRequest();
         const response = context.switchToHttp().getResponse();
-        const token = request.cookies.access_token;
+        
+        // If we come from the refresh auth endpoint we want to check the refresh token!
+        const token = request.url === '/auth/refresh' ? request.cookies.refresh_token : request.cookies.access_token;
 
         if (!token) {
             response.redirect('/auth/google/?redirect_uri=' + request.url);
