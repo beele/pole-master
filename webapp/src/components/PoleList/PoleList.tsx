@@ -4,6 +4,7 @@ import styles from './PoleList.module.css';
 import { useUser } from '@/hooks/useUser';
 import { Pole } from "../../../../api/node_modules/@prisma/client";
 import { useEffect, useState } from 'react';
+import PoleListItem from '../PoleListItem/PoleListItem';
 
 export default function PoleList() {
     const user = useUser();
@@ -36,8 +37,8 @@ export default function PoleList() {
             )}
             {
                 poles.length > 0 && (
-                <ul>
-                    {poles.map((pole) => <li key={pole.id}>{pole.name}</li>)}
+                <ul className={styles.list}>
+                    {poles.map((pole) => <PoleListItem key={pole.id} pole={pole}/>)}
                 </ul>
             )}
         </div>

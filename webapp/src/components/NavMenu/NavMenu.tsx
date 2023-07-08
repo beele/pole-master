@@ -21,7 +21,7 @@ export default function NavMenu() {
 
     return (
         <header className={styles.header}>
-            <h1>PoleMaster</h1>
+            <h1 className={styles.title}>PoleMaster</h1>
 
             {!user && (
                 <div className={styles.userMenu}>

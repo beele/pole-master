@@ -3,6 +3,10 @@
     background-color: green;
 }
 
+.title {
+    margin: unset;
+}
+
 .userMenu {
     background-color: blue;
     display: flex;
