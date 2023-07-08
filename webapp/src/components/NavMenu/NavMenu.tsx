@@ -13,11 +13,11 @@ export default function NavMenu() {
         window.location.replace('http://localhost:3000/auth/logout?redirect_uri=' + window.location);
     };
 
-    const testApi = async () => {
+    /*const testApi = async () => {
         const response = await fetch('http://localhost:3000/poles/user', {credentials: 'include'});
         const userPoles = await response.json();
         alert(JSON.stringify(userPoles, null, 4));
-    }
+    }*/
 
     return (
         <header className={styles.header}>
@@ -36,9 +36,6 @@ export default function NavMenu() {
                     <span>Welcome {user.firstName}</span>
                     <button className={styles.button} onClick={signOut}>
                         Sign Out
-                    </button>
-                    <button className={styles.button} onClick={testApi}>
-                        Test API
                     </button>
                 </div>
             )}
