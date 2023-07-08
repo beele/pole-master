@@ -93,4 +93,11 @@ export class AuthController {
             secure: false,
         });
     }
+
+    @Get('logout')
+    async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response, @Query() query) {
+        res.clearCookie('access_token');
+        res.clearCookie('refresh_token');
+        res.redirect(req.query.redirect_uri as string ?? '');
+    }
 }

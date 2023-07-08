@@ -147,6 +147,10 @@ export class PoleService {
         page.close();
         
         console.log('Pole re-scraped');
+        if (isNaN(free)) {
+            console.warn('Could not update pole: ' + pole.name);
+            return;
+        }
 
         await this.dbService.db.pole.update({where: {id: pole.id}, data: {...pole}});
 

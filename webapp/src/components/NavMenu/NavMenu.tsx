@@ -1,69 +1,63 @@
 'use client';
 
-import { initFirebase } from "@/firebase/firebase-app";
-import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
-import { useAuthState } from "react-firebase-hooks/auth";
-
-import styles from './NavMenu.module.css'
+import { useEffect, useState } from 'react';
+import styles from './NavMenu.module.css';
 
 export default function NavMenu() {
-    const app = initFirebase();
-    //console.log(app);
-
-    const provider = new GoogleAuthProvider();
-    const auth = getAuth();
-    const [user, loading] = useAuthState(auth);
+    const [user, setUser] = useState<{ firstName: string; lastName: string } | null>(null);
 
     const signIn = async () => {
-        // https://firebase.google.com/docs/auth/web/password-auth
-        const result = await signInWithPopup(auth, provider);
-        //console.log(result.user);
-    }
-
+        window.location.replace('http://localhost:3000/auth/google?redirect_uri=' + window.location);
+    };
     const signOut = async () => {
-        auth.signOut();
-    }
+        window.location.replace('http://localhost:3000/auth/logout?redirect_uri=' + window.location);
+    };
 
-    if (loading) {
-        return <div>Loading...</div>
-    }
-
-    const testApi = async () => {
-        const claims = (await user?.getIdTokenResult())?.claims;
-        // TODO: Check claims!
-
-        const jwt = await user?.getIdToken();
-        console.log(jwt);
-
+    const getUser = async () => {
         try {
-            const response = await fetch("http://localhost:3000/secure/ping", { headers: {authorization: 'Bearer ' + jwt}});
+            const response = await fetch('http://localhost:3000/secure/user', { credentials: 'include' });
             const body = await response.json();
-            alert(JSON.stringify(body, null, 4));
+            return body;
         } catch (error) {
-            alert(JSON.stringify(error, null, 4));
+            return null;
         }
-    }
+    };
+
+    useEffect(() => {
+        getUser()
+            .then((user) => {
+                if (user) {
+                    setUser(user as any);
+                }
+            })
+            .catch((error) => {
+                setUser(null);
+            });
+    }, []);
 
     return (
         <header className={styles.header}>
             <h1>PoleMaster</h1>
-            
-            {   
-                !user && 
+
+            {!user && (
                 <div className={styles.userMenu}>
                     <span>You are not logged in!</span>
-                    <button className={styles.button} onClick={signIn}>Sign In</button>
+                    <button className={styles.button} onClick={signIn}>
+                        Sign In
+                    </button>
                 </div>
-            }
-            {
-                user && 
+            )}
+            {user && (
                 <div className={styles.userMenu}>
-                    <span>Welcome {user.displayName}</span>
-                    <button className={styles.button} onClick={signOut}>Sign Out</button>
-                    <button className={styles.button} onClick={testApi}>Test API</button>
+                    <span>Welcome {user.firstName}</span>
+                    <button className={styles.button} onClick={signOut}>
+                        Sign Out
+                    </button>
+                    <button className={styles.button} onClick={getUser}>
+                        Test API
+                    </button>
                 </div>
-            }
-
+            )}
         </header>
     );
 }
