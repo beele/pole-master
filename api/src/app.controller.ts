@@ -1,6 +1,7 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard, UserRole } from './auth/jwt-auth.guard';
 import { Role } from '@prisma/client';
+import { Request } from 'express';
 
 @Controller()
 export class AppController {
@@ -14,7 +15,7 @@ export class AppController {
     @Get('secure/admin')
     @UseGuards(JwtAuthGuard)
     @UserRole(Role.ADMIN)
-    helloAdmin(): string {
+    helloAdmin(@Req() request: Request): string {
         return 'Hello world admin';
     }
 

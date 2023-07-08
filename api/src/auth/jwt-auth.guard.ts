@@ -3,6 +3,8 @@ import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { Role } from '@prisma/client';
 import { JwtService } from './jwt.service';
+import { JwtPayload } from './jwt.strategy';
+import { Request } from 'express';
 
 export const USER_ROLE = 'userRole';
 export const UserRole = (value: Role) => SetMetadata(USER_ROLE, value);
@@ -14,20 +16,25 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     canActivate(context: ExecutionContext) {
+        console.log('A: JWT guard');
+
         const requiredUserRole: Role = this.reflector.getAllAndOverride<Role>(USER_ROLE, [
             context.getHandler(),
             context.getClass(),
         ]);
 
-        const request = context.switchToHttp().getRequest();
+        const request: Request = context.switchToHttp().getRequest();
+        const response = context.switchToHttp().getResponse();
         const token = request.cookies.access_token;
 
         if (!token) {
+            response.redirect('/auth/google/?redirect_uri=' + request.url);
             return false;
         }
 
-        const decodedToken = this.jwtService.verifyToken(token);
+        const decodedToken: JwtPayload = this.jwtService.verifyToken(token);
         if (!decodedToken || this.checkRoleAccess(requiredUserRole, decodedToken['role']) === false) {
+            response.redirect('/auth/google/?redirect_uri=' + request.url);
             return false;
         }
 

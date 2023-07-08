@@ -1,10 +1,12 @@
-import { Controller, Get, HttpException, HttpStatus, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpException, HttpStatus, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { JwtService } from './jwt.service';
-import { UserDto, UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/user.service';
 import { Role, User } from '@prisma/client';
 import { JwtAuthGuard, UserRole } from './jwt-auth.guard';
+import { GoogleUserPayload } from './google.strategy';
+import { JwtSpecificPayload } from './jwt.strategy';
 
 @Controller('auth')
 export class AuthController {
@@ -12,20 +14,19 @@ export class AuthController {
 
     @Get('google')
     @UseGuards(AuthGuard('google'))
-    async googleAuth() {}
+    async googleAuth(@Query() query) {}
 
     @Get('google/callback')
     @UseGuards(AuthGuard('google'))
     async googleAuthCallback(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-        const user: UserDto = req.user as UserDto;
-        //console.log(user);
+        const user: GoogleUserPayload = req.user as GoogleUserPayload;
 
         let retrievedOrCreatedUser: User = await this.userService.findUserByEmail(user.email);
         if (!retrievedOrCreatedUser) {
             retrievedOrCreatedUser = await this.userService.createUser({ ...user });
         }
 
-        const payload = {
+        const payload: JwtSpecificPayload = {
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
@@ -39,7 +40,7 @@ export class AuthController {
         res.cookie('access_token', accessToken, {
             httpOnly: true,
             maxAge: 3600000, //1h
-            sameSite: true,
+            sameSite: 'lax',
             secure: false,
         });
         res.cookie('refresh_token', refreshToken, {
@@ -49,10 +50,15 @@ export class AuthController {
             secure: false,
         });
 
-        return { accessToken, refreshToken };
+        console.log('pre redirect!');
+        const redirect = decodeURI(req.query['state'] as string ?? '/');
+
+        res.redirect(redirect);
+        //return { accessToken, refreshToken };
     }
 
     // TODO: FIX: This auth guards requires a valid access_token! We might only have a refresh_token!
+    // TODO: FIX: Invalidate the received refresh token!
     @Get('refresh')
     @UseGuards(JwtAuthGuard)
     @UserRole(Role.USER)
@@ -91,6 +97,6 @@ export class AuthController {
             secure: false,
         });
 
-        return { newAccessToken, newRefreshToken };
+        //return { newAccessToken, newRefreshToken };
     }
 }

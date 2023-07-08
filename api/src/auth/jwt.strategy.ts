@@ -1,8 +1,8 @@
-import { ExtractJwt, Strategy } from 'passport-jwt';
+import { ExtractJwt, Strategy, VerifiedCallback } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
-import { User } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import { Request } from 'express';
 
 export type JwtPayload = JwtGeneralPayload & JwtSpecificPayload;
@@ -13,10 +13,11 @@ export type JwtGeneralPayload = {
 };
 
 export type JwtSpecificPayload = {
-    providerId: number;
     firstName: string;
     lastName: string;
     email: string;
+    picture: string;
+    role: Role;
 };
 
 @Injectable()
@@ -36,15 +37,14 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         return null;
     }
 
-    public async validate(payload: JwtPayload) {
+    public async validate(payload: JwtPayload, done: VerifiedCallback) {
+        // TODO: What kind of validation is needed here? The JWT-auth guard already checks a lot (invoked before this)!
+        console.log('A: JWT strat');
         const user: User = await this.userService.findUserByEmail(payload.email);
         if (!user) {
             throw new UnauthorizedException('Please log in to continue');
         }
 
-        return {
-            id: payload.providerId,
-            email: payload.email,
-        };
+        done(null, payload);
     }
 }

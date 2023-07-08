@@ -1,7 +1,16 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { Injectable } from '@nestjs/common';
-import { UserDto } from 'src/user/user.service';
+import { Request } from 'express';
+
+export type GoogleUserPayload = {
+    provider: string;
+    providerId: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    picture?: string;
+};
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
@@ -10,14 +19,28 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             callbackURL: process.env.GOOGLE_CALLBACK_URL,
+            passReqToCallback: true,
             scope: ['profile', 'email'],
         });
     }
 
-    public async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback): Promise<any> {
+    authenticate(req: Request, options: any) {
+        if (!options?.state) {
+            options = { ...options, state: encodeURI(req.query.redirect_uri as string ?? '/') };
+        }
+        return super.authenticate(req, options);
+    }
+
+    public async validate(
+        request: Request,
+        accessToken: string,
+        refreshToken: string,
+        profile: any,
+        done: VerifyCallback,
+    ): Promise<any> {
         const { id, name, emails, photos } = profile;
 
-        const user: UserDto = {
+        const user: GoogleUserPayload = {
             provider: 'google',
             providerId: id,
             email: emails[0].value,
