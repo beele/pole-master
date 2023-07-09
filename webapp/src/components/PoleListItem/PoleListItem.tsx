@@ -28,9 +28,9 @@ export default function PoleListItem(props: {pole: Pole}) {
 
     return(
         <li className={styles.listItem} style={{backgroundColor: determineBackgroundColor(props.pole.connectorCount, props.pole.inUse)}}>
-            <div className={styles.poleImg} onClick={changeExpanded}>IMG</div>
+            <div className={styles.poleImg} onClick={changeExpanded}></div>
             <div className={styles.poleTitle}><MdElectricCar />{props.pole.name}</div>
-            <div className={classnames(styles.poleAvailability, expanded ? '' : styles.collapsed2)}><RiChargingPileFill /><span>{props.pole.inUse}&nbsp;/&nbsp;{props.pole.connectorCount}</span>available</div>
+            <div className={classnames(styles.poleAvailability, expanded ? '' : styles.collapsed2)}><RiChargingPileFill /><span>{props.pole.connectorCount - props.pole.inUse}&nbsp;/&nbsp;{props.pole.connectorCount}</span>available</div>
             <div className={classnames(styles.poleExpanded, expanded ? '' : styles.collapsed)}>
                 <PoleButton clickHandler={() => {console.log('clicked Test 1')}} bg='#C7DAEE' bgHover='#AFCAE6'>
                     <span>Check in</span>

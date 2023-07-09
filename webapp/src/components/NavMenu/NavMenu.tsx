@@ -41,7 +41,7 @@ export default function NavMenu() {
                     )}
                 </div>
             </header>
-            <Image className={styles.banner} src="/banner.jpg" width={500} height={500} alt="Picture of the author" />
+            <Image className={styles.banner} src="/banner.jpg" width={500} height={500} alt="Banner image" />
         </>
     );
 }

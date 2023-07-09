@@ -27,11 +27,16 @@
     margin-top: -10px;
     margin-left: -10px;
     margin-right: -10px;
-    background-color: red;
+    background-color: #C7DAEE;
     margin-bottom: 10px;
     justify-content: center;
     display: flex;
     align-items: center;
+
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: 0;
+    background-image: url('/image-placeholder.svg');
 }
 
 .poleTitle {
