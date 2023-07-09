@@ -1,52 +1,20 @@
 'use client';
 
-import styles from './NavMenu.module.css';
+import styles from './NavMenu.module.scss';
 import Image from 'next/image';
 
-import { useUser } from '@/hooks/useUser';
-
-import { FaRegUserCircle } from 'react-icons/fa';
-import { useEffect } from 'react';
-import { addTokenRefreshInterceptor } from '@/utils/fetch-interceptor';
+import classNames from 'classnames';
+import { UserPopOut } from '../UserPopOut/UserPopOut';
 
 export default function NavMenu() {
-    const user = useUser();
-
-    const signIn = async () => {
-        window.location.replace('http://localhost:3000/auth/google?redirect_uri=' + window.location);
-    };
-    const signOut = async () => {
-        window.location.replace('http://localhost:3000/auth/logout?redirect_uri=' + window.location);
-    };
-
-    // TODO: This should be on a higher level and only ever be executed once!
-    useEffect(() => {
-        addTokenRefreshInterceptor();
-    }, [])
-
     return (
         <>
             <header className={styles.header}>
-                <span className={styles.title}>PoleMaster</span>
-                <div className={styles.userMenu}>
-                    {!user && (
-                        <>
-                            <span>You are not logged in!</span>
-                            <button className={styles.button} onClick={signIn}>
-                                Sign In
-                            </button>
-                        </>
-                    )}
-                    {user && (
-                        <>
-                            <span>Welcome {user.firstName}</span>
-                            <FaRegUserCircle />
-                            <button className={styles.button} onClick={signOut}>
-                                Sign Out
-                            </button>
-                        </>
-                    )}
+                <div className={classNames(styles.wrapper, styles.invert)}>
+                    <span data-text="Pole"></span>
+                    <span data-text="Master"></span>
                 </div>
+                <UserPopOut/>
             </header>
             <Image className={styles.banner} src="/banner.jpg" width={500} height={500} alt="Banner image" />
         </>

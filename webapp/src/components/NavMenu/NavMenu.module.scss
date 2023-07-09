@@ -1,0 +1,109 @@
+.header {
+    user-select: none;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding-left: 25px;
+    padding-right: 25px;
+    height: 140px;
+
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+    z-index: 100;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+
+.wrapper {
+    font-size: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    mix-blend-mode: screen;
+
+    &.invert {
+        span {
+            color: black;
+
+            &::before {
+                -webkit-text-stroke: 0.1em var(--color);
+            }
+        }
+    }
+
+    span {
+        --color: #7fff62;
+        font-family: Impact, 'Anton', Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+        font-weight: 700;
+        font-style: italic;
+        display: block;
+        position: absolute;
+        color: var(--color);
+        letter-spacing: -0.005em;
+
+        &::before,
+        &::after {
+            content: attr(data-text);
+            display: block;
+            position: relative;
+            padding: 0 0.1em;
+            z-index: 1;
+        }
+
+        &::before {
+            position: absolute;
+            -webkit-text-stroke: 0.1em black;
+            z-index: 0;
+        }
+
+        &:first-child {
+            transform: translate(0.95em, -0.25em);
+        }
+
+        &:last-child {
+            --color: #c7daee;
+            transform: translate(3.255em, 0.25em);
+        }
+    }
+}
+
+.userMenu {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+
+    padding-right: 25px;
+}
+
+.button {
+    appearance: none;
+    background-color: white;
+    color: black;
+    border: none;
+    border-radius: 4px;
+    padding: 4px;
+
+    cursor: pointer;
+}
+
+.banner {
+    width: 100%;
+    height: 120px;
+
+    padding-top: 8px;
+    background-color: #c7daee;
+
+    object-fit: cover;
+    filter: blur(3px);
+    transform: scale(1.2);
+    overflow: hidden;
+    object-position: 0 -56px;
+}

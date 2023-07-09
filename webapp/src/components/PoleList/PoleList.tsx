@@ -38,7 +38,7 @@ export default function PoleList() {
         <>
             {loading && !user && <span>Loading...</span>}
             {!loading && !user && <span>Please log in.</span>}
-            {!loading && poles.length === 0 && <span>You don&apos;t have any poles yet</span>}
+            {!loading && user && poles.length === 0 && <span>You don&apos;t have any poles yet</span>}
             {!loading && poles.length > 0 && (
                 <ul className={styles.list}>
                     {poles.map((pole) => (

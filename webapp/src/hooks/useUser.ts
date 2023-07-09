@@ -22,8 +22,8 @@ export function useUser(): [boolean, User | null] {
         setLoading(true);
         getUser()
             .then((user) => {
+                setLoading(false);
                 if (user) {
-                    setLoading(false);
                     setUser(user as any);
                 }
             })
