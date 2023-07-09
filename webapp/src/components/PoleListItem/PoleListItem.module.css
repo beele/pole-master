@@ -1,11 +1,12 @@
 .listItem {
     display: flex;
+    align-self: start;
     flex-direction: column;
     overflow: hidden;
     user-select: none;
     cursor: pointer;
 
-    max-width: 450px;
+    width: 400px;
     padding: 10px;
     border-radius: 8px;
     color: black;

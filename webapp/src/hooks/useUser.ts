@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { User } from "../../../api/node_modules/@prisma/client";
 import axios from "axios";
 
-export function useUser(): User | null {
+export function useUser(): [boolean, User | null] {
+    const [loading, setLoading] = useState<boolean>(true);
     const [user, setUser] = useState<User | null>(null);
 
     const getUser = async () => {
@@ -18,16 +19,19 @@ export function useUser(): User | null {
     };
 
     useEffect(() => {
+        setLoading(true);
         getUser()
             .then((user) => {
                 if (user) {
+                    setLoading(false);
                     setUser(user as any);
                 }
             })
             .catch((error) => {
+                setLoading(false);
                 setUser(null);
             });
     }, []);
 
-    return user;
+    return [loading, user];
 }

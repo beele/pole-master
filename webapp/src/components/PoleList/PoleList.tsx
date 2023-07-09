@@ -2,22 +2,23 @@
 
 import styles from './PoleList.module.css';
 import { useUser } from '@/hooks/useUser';
-import { Pole } from "../../../../api/node_modules/@prisma/client";
+import { Pole } from '../../../../api/node_modules/@prisma/client';
 import { useEffect, useState } from 'react';
 import PoleListItem from '../PoleListItem/PoleListItem';
+import axios from 'axios';
 
 export default function PoleList() {
-    const user = useUser();
+    const [loading, user] = useUser();
 
     const [poles, setPoles] = useState<Pole[]>([]);
     const [error, setError] = useState<string | null>(null);
 
     const getPolesForUser = async (): Promise<Pole[]> => {
-        const response = await fetch('http://localhost:3000/poles/user', {credentials: 'include'});
-        const userPoles = await response.json();
+        const response = await axios.get('http://localhost:3000/poles/user', { withCredentials: true });
+        const userPoles = response.data;
         console.log(userPoles);
         return userPoles ?? [];
-    }
+    };
 
     useEffect(() => {
         if (!user) {
@@ -34,17 +35,17 @@ export default function PoleList() {
     }, [user]);
 
     return (
-        <div>
-            {
-                poles.length === 0 && (
-                <span>You don&apos;t have any poles yet</span>
-            )}
-            {
-                poles.length > 0 && (
+        <>
+            {loading && !user && <span>Loading...</span>}
+            {!loading && !user && <span>Please log in.</span>}
+            {!loading && poles.length === 0 && <span>You don&apos;t have any poles yet</span>}
+            {!loading && poles.length > 0 && (
                 <ul className={styles.list}>
-                    {poles.map((pole) => <PoleListItem key={pole.id} pole={pole}/>)}
+                    {poles.map((pole) => (
+                        <PoleListItem key={pole.id} pole={pole} />
+                    ))}
                 </ul>
             )}
-        </div>
+        </>
     );
 }

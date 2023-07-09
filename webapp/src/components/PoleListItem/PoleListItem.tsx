@@ -1,7 +1,8 @@
 import classnames from 'classnames';
 import styles from './PoleListItem.module.css';
 import { MdElectricCar } from "react-icons/md";
-import { RiChargingPileFill, RiDeleteBin6Line } from "react-icons/ri";
+import { RiChargingPileFill } from "react-icons/ri";
+import { FaLinkSlash } from "react-icons/fa6";
 
 import { Pole } from "../../../../api/node_modules/@prisma/client";
 import { useState } from 'react';
@@ -39,8 +40,8 @@ export default function PoleListItem(props: {pole: Pole}) {
                     <span>Details</span>
                 </PoleButton>
                 <PoleButton clickHandler={() => {console.log('clicked Test 3')}} bg='#C7DAEE' bgHover='#CC9595'>
-                    <RiDeleteBin6Line/>
-                    <span>Delete</span>
+                    <FaLinkSlash/>
+                    <span>Unlink</span>
                 </PoleButton>
             </div>
         </li>
