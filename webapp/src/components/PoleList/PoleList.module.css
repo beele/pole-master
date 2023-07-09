@@ -1,8 +1,9 @@
 .list {
     appearance: none;
     list-style: none;
-    padding: 10px;
+    padding: 25px;
+    margin-top: 0;
     background-color: white;
     border-radius: 8px;
-    filter: drop-shadow(1px 1px 10px rgb(240, 240, 240));
+    filter: drop-shadow(1px 1px 10px rgb(220, 220, 220));
 }

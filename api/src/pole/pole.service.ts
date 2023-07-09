@@ -5,7 +5,7 @@ import { DatabaseService } from 'src/db/db.service';
 
 @Injectable()
 export class PoleService {
-    private readonly browser: Promise<Browser>;
+    private browser: Promise<Browser> | undefined;
     private readonly poles: Pole[];
 
     constructor(private readonly dbService: DatabaseService) {
@@ -184,6 +184,7 @@ export class PoleService {
             } catch (error) {
                 console.error('Could not update pole: ' + pole.name);
                 console.error(error);
+                this.resetScraper();
                 continue;
             }
         }
@@ -215,6 +216,11 @@ export class PoleService {
         await this.dbService.db.pole.update({ where: { id: pole.id }, data: { ...pole } });
 
         console.log('Pole updated');
+    }
+
+    private async resetScraper(): Promise<void> {
+        (await this.browser).close();
+        this.browser = puppeteer.launch();
     }
 }
 
