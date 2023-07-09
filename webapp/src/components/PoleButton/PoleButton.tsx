@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import styles from './PoleButton.module.css';
 
-export default function PoleButton(props: {title: String, clickHandler: (event: React.MouseEvent) => void, bg?: string, bgHover?: string}) {
+export default function PoleButton(props: {children: any, clickHandler: (event: React.MouseEvent) => void, bg?: string, bgHover?: string}) {
 
     const clickWrapper = (event: React.MouseEvent): void  => {
         event.preventDefault();
@@ -23,7 +23,7 @@ export default function PoleButton(props: {title: String, clickHandler: (event: 
 
     return (
         <button ref={buttonRef} className={styles.poleButton} onClick={clickWrapper}>
-            {props.title}
+            {props.children}
         </button>
     );
 }

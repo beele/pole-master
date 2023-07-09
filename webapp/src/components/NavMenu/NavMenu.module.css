@@ -1,17 +1,24 @@
 .header {
-    text-align: center;
-    background-color: green;
+    display: flex;
+    background-color: #C7DAEE;
+    justify-content: space-between;
+    align-items: center;
+
+    padding-left: 25px;
+    height: 50px;
 }
 
 .title {
-    margin: unset;
+    font-size: x-large;
+    font-weight: 600;
 }
 
 .userMenu {
-    background-color: blue;
     display: flex;
-    gap: 20px;
-    padding: 20px;
+    align-items: center;
+    gap: 25px;
+
+    padding-right: 25px;
 }
 
 .button {
