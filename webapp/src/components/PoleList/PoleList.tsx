@@ -20,6 +20,10 @@ export default function PoleList() {
     }
 
     useEffect(() => {
+        if (!user) {
+            return;
+        }
+
         getPolesForUser()
             .then((poles) => setPoles(poles))
             .catch((error) => {
@@ -27,7 +31,7 @@ export default function PoleList() {
                 setPoles([]);
                 setError('Could not retrieve poles for user!');
             });
-    }, []);
+    }, [user]);
 
     return (
         <div>

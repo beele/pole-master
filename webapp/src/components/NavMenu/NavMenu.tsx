@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { useUser } from '@/hooks/useUser';
 
 import { FaRegUserCircle } from 'react-icons/fa';
+import { useEffect } from 'react';
+import { addTokenRefreshInterceptor } from '@/utils/fetch-interceptor';
 
 export default function NavMenu() {
     const user = useUser();
@@ -16,6 +18,11 @@ export default function NavMenu() {
     const signOut = async () => {
         window.location.replace('http://localhost:3000/auth/logout?redirect_uri=' + window.location);
     };
+
+    // TODO: This should be on a higher level and only ever be executed once!
+    useEffect(() => {
+        addTokenRefreshInterceptor();
+    }, [])
 
     return (
         <>
