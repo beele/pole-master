@@ -4,7 +4,7 @@ import { MdElectricCar } from "react-icons/md";
 import { RiChargingPileFill } from "react-icons/ri";
 import { FaLinkSlash } from "react-icons/fa6";
 
-import { Pole } from "../../../../api/node_modules/@prisma/client";
+import { Pole } from 'prisma-client';
 import { useState } from 'react';
 import PoleButton from '../PoleButton/PoleButton';
 

@@ -1,14 +1,16 @@
 'use client';
 
 import styles from './PoleList.module.css';
-import { useUser } from '@/hooks/useUser';
-import { Pole } from '../../../../api/node_modules/@prisma/client';
 import { useEffect, useState } from 'react';
 import PoleListItem from '../PoleListItem/PoleListItem';
 import axios from 'axios';
+import { Pole, User } from 'prisma-client';
+import { useAppSelector } from '@/utils/GlobalRedux/hooks';
+import { RootState } from '@/utils/GlobalRedux/store';
 
 export default function PoleList() {
-    const [loading, user] = useUser();
+    const user: User | null = useAppSelector((state: RootState) => state.user.value);
+    const loading: boolean = useAppSelector((state: RootState) => state.user.loading);
 
     const [poles, setPoles] = useState<Pole[]>([]);
     const [error, setError] = useState<string | null>(null);
