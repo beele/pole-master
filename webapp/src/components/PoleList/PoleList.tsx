@@ -5,15 +5,16 @@ import { useEffect, useState } from 'react';
 import PoleListItem from '../PoleListItem/PoleListItem';
 import axios from 'axios';
 import { Pole, User } from 'prisma-client';
-import { useAppSelector } from '@/utils/GlobalRedux/hooks';
-import { RootState } from '@/utils/GlobalRedux/store';
+
+import { useSession } from 'next-auth/react';
 
 export default function PoleList() {
-    const user: User | null = useAppSelector((state: RootState) => state.user.value);
-    const loading: boolean = useAppSelector((state: RootState) => state.user.loading);
+    const { data: session, status } = useSession();
 
     const [poles, setPoles] = useState<Pole[]>([]);
     const [error, setError] = useState<string | null>(null);
+
+    const loading = false;
 
     const getPolesForUser = async (): Promise<Pole[]> => {
         const response = await axios.get('http://localhost:3000/poles/user', { withCredentials: true });
@@ -23,7 +24,7 @@ export default function PoleList() {
     };
 
     useEffect(() => {
-        if (!user) {
+        if (!session?.user) {
             return;
         }
 
@@ -34,13 +35,13 @@ export default function PoleList() {
                 setPoles([]);
                 setError('Could not retrieve poles for user!');
             });
-    }, [user]);
+    }, [session]);
 
     return (
         <>
-            {loading && !user && <span>Loading...</span>}
-            {!loading && !user && <span>Please log in.</span>}
-            {!loading && user && poles.length === 0 && <span>You don&apos;t have any poles yet</span>}
+            {loading && !session?.user && <span>Loading...</span>}
+            {!loading && !session?.user && <span>Please log in.</span>}
+            {!loading && session?.user && poles.length === 0 && <span>You don&apos;t have any poles yet</span>}
             {!loading && poles.length > 0 && (
                 <ul className={styles.list}>
                     {poles.map((pole) => (

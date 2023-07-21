@@ -12,6 +12,24 @@ import { JwtSpecificPayload } from './jwt.strategy';
 export class AuthController {
     constructor(private readonly jwtService: JwtService, private readonly userService: UserService) {}
 
+    @Get('next-auth/login')
+    @UseGuards(JwtAuthGuard)
+    async nextAuthAuthLogin(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+        res.cookie('access_token', req.query.access_token, {
+            httpOnly: true,
+            maxAge: 3600000, //1h
+            sameSite: 'lax',
+            secure: false,
+        });
+        res.cookie('refresh_token', req.query.refresh_token, {
+            httpOnly: true,
+            maxAge: 60480000, //7d
+            sameSite: 'lax',
+            secure: false,
+        });
+        // TODO: Return user?  
+    }
+
     @Get('google')
     @UseGuards(AuthGuard('google'))
     async googleAuth(@Query() query) {}
