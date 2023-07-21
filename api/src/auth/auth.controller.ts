@@ -15,6 +15,7 @@ export class AuthController {
     @Get('next-auth/login')
     @UseGuards(JwtAuthGuard)
     async nextAuthAuthLogin(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+        console.log(req.query.access_token);
         res.cookie('access_token', req.query.access_token, {
             httpOnly: true,
             maxAge: 3600000, //1h
@@ -27,7 +28,6 @@ export class AuthController {
             sameSite: 'lax',
             secure: false,
         });
-        // TODO: Return user?  
     }
 
     @Get('google')

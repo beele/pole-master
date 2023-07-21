@@ -28,14 +28,15 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         const response: Response = context.switchToHttp().getResponse();
 
         // If we come from the refresh auth endpoint we want to check the refresh token!
-        const access_token = this.jwtService.verifyToken(request.cookies.access_token);
-        const refresh_token = this.jwtService.verifyToken(request.cookies.refresh_token);
+        const access_token = this.jwtService.verifyToken(request.cookies.access_token ?? request.headers['access_token']);
+        const refresh_token = this.jwtService.verifyToken(request.cookies.refresh_token ?? request.headers['refresh_token']);
         const isNextAuthLoginFlow = request.url === '/auth/next-auth/login';
         const isRefreshFlow = request.url === '/auth/refresh';
 
         if (isNextAuthLoginFlow) {
             const decodedSessionToken = await this.decode(
-                request.cookies['next-auth.session-token'],
+                request.headers['next-auth.session-token'] as string,
+                //request.cookies['next-auth.session-token'],
                 process.env.JWT_SECRET,
             );
             if (!decodedSessionToken) {
@@ -55,12 +56,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         }
 
         // Regular flow when we have a valid access token!
-        if (
-            access_token &&
-            refresh_token &&
-            this.checkRoleAccess(requiredUserRole, access_token['role']) &&
-            this.checkRoleAccess(requiredUserRole, refresh_token['role'])
-        ) {
+        if (access_token && this.checkRoleAccess(requiredUserRole, access_token['role'])) {
             return (await super.canActivate(context)) as boolean;
         }
 

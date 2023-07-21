@@ -9,7 +9,7 @@ export class UserService {
     constructor(private readonly jwtService: JwtService, private readonly dbService: DatabaseService) {}
 
     public async getUserFromRequest(request: Request): Promise<User> {
-        const accessToken: string = request.cookies.access_token;
+        const accessToken: string = request.cookies.access_token ?? request.headers['access_token'];
         const decodedToken = this.jwtService.verifyToken(accessToken);
         // TODO: Checks?
         return await this.findUserByEmail(decodedToken.email);

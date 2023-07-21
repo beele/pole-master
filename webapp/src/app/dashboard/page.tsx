@@ -1,5 +1,5 @@
 import PoleList from "@/components/PoleList/PoleList";
-import axios from "axios";
+import styles from './page.module.scss';
 import { getServerSession } from "next-auth/next"
 
 export default async function Dashboard() {
@@ -7,11 +7,11 @@ export default async function Dashboard() {
 
     if (!session) {
         // redirect or render something else
-        return <main>Not logged in!</main>
+        return <main className={styles.main}>Not logged in!</main>
     }
 
     return (
-        <main>
+        <main className={styles.main}>
             <PoleList></PoleList>
         </main>
     );

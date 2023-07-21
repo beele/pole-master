@@ -1,6 +1,6 @@
 'use client';
 
-import styles from './PoleList.module.css';
+import styles from './PoleList.module.scss';
 import { useEffect, useState } from 'react';
 import PoleListItem from '../PoleListItem/PoleListItem';
 import axios from 'axios';
@@ -17,7 +17,7 @@ export default function PoleList() {
     const loading = false;
 
     const getPolesForUser = async (): Promise<Pole[]> => {
-        const response = await axios.get('http://localhost:3000/poles/user', { withCredentials: true });
+        const response = await axios.get('http://localhost:3000/poles/user', { headers: {'access_token': (session as any).accessToken ?? ''} });
         const userPoles = response.data;
         console.log(userPoles);
         return userPoles ?? [];
@@ -27,6 +27,8 @@ export default function PoleList() {
         if (!session?.user) {
             return;
         }
+
+        console.log(session);
 
         getPolesForUser()
             .then((poles) => setPoles(poles))

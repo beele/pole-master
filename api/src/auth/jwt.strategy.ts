@@ -28,7 +28,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         super({
             ignoreExpiration: false,
             secretOrKey: process.env.JWT_SECRET,
-            jwtFromRequest: ExtractJwt.fromExtractors([JwtStrategy.extractJWTFromCookie]),
+            jwtFromRequest: ExtractJwt.fromExtractors([JwtStrategy.extractJWTFromCookieOrHeader]),
         });
     }
 
@@ -67,19 +67,18 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         return super.authenticate(req, options);
     }
 
-    private static extractJWTFromCookie(req: Request): string | null {
+    private static extractJWTFromCookieOrHeader(req: Request): string | null {
         //console.log('A: JWT strat extract JWT');
 
-        if (req.query && req.url === '/auth/next-auth/login' && req.query.access_token) {
+        if (req.url === '/auth/next-auth/login' && req.query?.access_token) {
             return req.query.access_token as string;
         }
-        if (req.cookies && req.url === '/auth/refresh' && req.cookies.refresh_token) {
-            return req.cookies.refresh_token;
+        
+        if (req.url === '/auth/refresh') {
+            return req.cookies?.refresh_token ?? req.headers['refresh_token'] as string ?? null;
         }
-        if (req.cookies && req.cookies.access_token) {
-            return req.cookies.access_token;
-        }
-        return null;
+
+        return req.cookies?.access_token ?? req.headers['access_token'] as string ?? null;
     }
 
     public async validate(payload: JwtPayload, done: VerifiedCallback) {
