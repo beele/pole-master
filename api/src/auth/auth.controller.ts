@@ -76,7 +76,7 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @UserRole(Role.USER)
     async generateAccessToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-        const refreshToken: string = req.cookies.refresh_token;
+        const refreshToken: string = req.cookies.refresh_token ?? req.headers.refresh_token;
         if (!refreshToken) {
             throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
         }
@@ -109,6 +109,8 @@ export class AuthController {
             sameSite: 'lax',
             secure: false,
         });
+        res.header('access_token', newAccessToken);
+        res.header('refresh_token', newRefreshToken);
     }
 
     @Get('logout')

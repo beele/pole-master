@@ -27,12 +27,11 @@ const handler = NextAuth({
             return baseUrl;
         },
         async session({ session, token, user }): Promise<Session> {
-            // Bing over the access and refresh tokens to the user session.
             session.accessToken = token?.accessToken ?? null;
             session.refreshToken = token?.refreshToken ??  null;
             return session;
         },
-        async jwt({ token, user, account, profile, trigger }) {
+        async jwt({ token, user, account, profile, trigger, session }) {
             if (profile) {
                 token.profile = profile;
             }
@@ -56,8 +55,11 @@ const handler = NextAuth({
                 token.refreshToken = actualTokens[1];
             }
 
-            if (trigger === 'update') {
+            if (trigger === 'update' && session.accessToken && session.refreshToken) {
                 console.log('jwt update trigger');
+
+                token.accessToken = session.accessToken;
+                token.refreshToken = session.refreshToken;
             }
 
             return token;

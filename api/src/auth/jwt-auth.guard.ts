@@ -60,10 +60,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
             return (await super.canActivate(context)) as boolean;
         }
 
-        if (!access_token && refresh_token && this.checkRoleAccess(requiredUserRole, refresh_token['role'])) {
+        /*if (!access_token && refresh_token && this.checkRoleAccess(requiredUserRole, refresh_token['role'])) {
             response.status(401).send('Token expired');
             return false;
-        }
+        }*/
 
         response.status(401).send('Unauthorized');
         return false;
