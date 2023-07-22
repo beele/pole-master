@@ -1,5 +1,5 @@
 import axios from 'axios';
-import NextAuth from 'next-auth';
+import NextAuth, { Session } from 'next-auth';
 import { encode } from 'next-auth/jwt';
 import GoogleProvider from 'next-auth/providers/google';
 
@@ -26,12 +26,10 @@ const handler = NextAuth({
         async redirect({ url, baseUrl }) {
             return baseUrl;
         },
-        async session({ session, token, user }) {
-            if (token) {
-                (session as any).accessToken = token.accessToken;
-                (session as any).refreshToken = token.refreshToken;
-            }
-
+        async session({ session, token, user }): Promise<Session> {
+            // Bing over the access and refresh tokens to the user session.
+            session.accessToken = token?.accessToken ?? null;
+            session.refreshToken = token?.refreshToken ??  null;
             return session;
         },
         async jwt({ token, user, account, profile, trigger }) {
@@ -40,10 +38,6 @@ const handler = NextAuth({
             }
 
             if (trigger === 'signIn') {
-                /*console.log('token', token);
-                console.log('user', user);
-                console.log('account', account);
-                console.log('profile', profile);*/
                 console.log('trigger', trigger);
 
                 const tokenString = await encode({ token: token, secret: process.env.NEXTAUTH_SECRET ?? '' });
@@ -51,15 +45,19 @@ const handler = NextAuth({
                     withCredentials: true,
                     headers: { 'next-auth.session-token': tokenString },
                 });
-                // TODO: we need to set our access and refresh tokens that we received!
 
+                // The cookies received from the request are not set, so we extract them and put them on our token.
                 const tokenCookies: string[] = response.headers['set-cookie'] ?? [];
                 const actualTokens = tokenCookies.map((tkn) => {
                     return tkn.split('=')[1].split(';')[0];
                 });
-                console.log(actualTokens);
+
                 token.accessToken = actualTokens[0];
                 token.refreshToken = actualTokens[1];
+            }
+
+            if (trigger === 'update') {
+                
             }
 
             return token;
