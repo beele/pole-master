@@ -32,15 +32,17 @@ export default function PoleList() {
 
     useEffect(() => {
         if (!session?.user) {
-            return;
-        } else {
             setPoles([]);
+            return;
+        }
+        if (userEmail === session.user.email) {
+            return;
+        }
+        if (!session.user?.email) {
+            return;
         }
 
-        if (session.user.email && userEmail !== session.user.email) {
-            setUserEmail(session.user.email);
-        }
-
+        setUserEmail(session.user.email);
         getPolesForUser()
             .then((poles) => setPoles(poles))
             .catch((error) => {
@@ -48,7 +50,7 @@ export default function PoleList() {
                 setPoles([]);
                 setError('Could not retrieve poles for user!');
             });
-    }, [session, userEmail]);
+    }, [session]);
 
     if (error) {
         return <span>{error}</span>;

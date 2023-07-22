@@ -57,7 +57,7 @@ const handler = NextAuth({
             }
 
             if (trigger === 'update') {
-                
+                console.log('jwt update trigger');
             }
 
             return token;
