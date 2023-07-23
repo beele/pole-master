@@ -7,7 +7,7 @@ declare module 'next-auth' {
      */
     interface Session {
         accessToken: string | null;
-        refreshToken: string | null;
+        accessTokenExpiry: string | null; //ISO-datetime
     }
     /**
      * The shape of the user object returned in the OAuth providers' `profile` callback,
@@ -31,6 +31,6 @@ declare module 'next-auth/jwt' {
     /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
     interface JWT {
         accessToken: string | null;
-        refreshToken: string | null;
+        accessTokenExpiry: string | null; // ISO-Datetime
     }
 }

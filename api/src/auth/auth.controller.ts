@@ -15,12 +15,8 @@ export class AuthController {
     @Get('next-auth/login')
     @UseGuards(JwtAuthGuard)
     async nextAuthAuthLogin(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-        res.cookie('access_token', req.query.access_token, {
-            httpOnly: true,
-            maxAge: 3600000, //1h
-            sameSite: 'lax',
-            secure: false,
-        });
+        res.header('access_token', req.query.access_token as string);
+        res.header('access_token_expiry', 'TODO');
         res.cookie('refresh_token', req.query.refresh_token, {
             httpOnly: true,
             maxAge: 60480000, //7d
@@ -54,12 +50,8 @@ export class AuthController {
         const accessToken = this.jwtService.generateToken(payload);
         const refreshToken = this.jwtService.generateRefreshToken(payload);
 
-        res.cookie('access_token', accessToken, {
-            httpOnly: true,
-            maxAge: 3600000, //1h
-            sameSite: 'lax',
-            secure: false,
-        });
+        res.header('access_token', accessToken as string);
+        res.header('access_token_expiry', 'TODO');
         res.cookie('refresh_token', refreshToken, {
             httpOnly: true,
             maxAge: 60480000, //7d
@@ -76,12 +68,7 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @UserRole(Role.USER)
     async generateAccessToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-        const refreshToken: string = req.cookies.refresh_token ?? req.headers.refresh_token;
-        if (!refreshToken) {
-            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
-        }
-
-        const decodedToken = this.jwtService.verifyToken(refreshToken);
+        const decodedToken = this.jwtService.verifyToken(req.cookies.refresh_token);
         if (!decodedToken) {
             throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
         }
@@ -97,25 +84,18 @@ export class AuthController {
         const newAccessToken = this.jwtService.generateToken(payload);
         const newRefreshToken = this.jwtService.generateRefreshToken(payload);
 
-        res.cookie('access_token', newAccessToken, {
-            httpOnly: true,
-            maxAge: 3600000, //1h
-            sameSite: true,
-            secure: false,
-        });
+        res.header('access_token', newAccessToken);
+        res.header('access_token_expiry', 'TODO');
         res.cookie('refresh_token', newRefreshToken, {
             httpOnly: true,
             maxAge: 60480000, //7d
             sameSite: 'lax',
             secure: false,
         });
-        res.header('access_token', newAccessToken);
-        res.header('refresh_token', newRefreshToken);
     }
 
     @Get('logout')
     async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response, @Query() query) {
-        res.clearCookie('access_token');
         res.clearCookie('refresh_token');
         res.redirect(req.query.redirect_uri as string ?? '');
     }

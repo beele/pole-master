@@ -1,5 +1,7 @@
+'use client';
+
 import classnames from 'classnames';
-import styles from './PoleListItem.module.css';
+import styles from './PoleListItem.module.scss';
 import { MdElectricCar } from "react-icons/md";
 import { RiChargingPileFill } from "react-icons/ri";
 import { FaLinkSlash } from "react-icons/fa6";

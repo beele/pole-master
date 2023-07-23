@@ -18,14 +18,15 @@ export function useUserPoles() {
         try {
             const response = await axios.get<Pole[]>('http://localhost:3000/poles/user', {
                 headers: { access_token: session?.accessToken ?? '' },
+                withCredentials: true,
             });
             userPoles = response.data ?? [];
         } catch (error) {
-            if ((error as AxiosError)?.response?.status === 401 && (error as AxiosError)?.response?.data === 'Unauthorized') {
-                const [accessToken, refreshToken] = await performTokenRefresh();
+            if ((error as AxiosError)?.response?.status === 401 && (error as AxiosError)?.response?.data === 'Token expired or invalid') {
+                const [accessToken, accessTokenExpiry] = await performTokenRefresh();
                 // Set new Access and refresh tokens on the session and update it (so the server side also gets these)!
                 // Recursively call this function again to actually fetch the poles now!
-                update({accessToken, refreshToken});   
+                update({accessToken, accessTokenExpiry});   
                 return getPolesForUser();
             }
         }
@@ -37,11 +38,11 @@ export function useUserPoles() {
 
     const performTokenRefresh = async (): Promise<[string | null, string | null]> => {
         const response = await fetch('http://localhost:3000/auth/refresh', { 
-            headers: { refresh_token: session?.refreshToken ?? ''},
+            credentials: 'include',
         });
         const accessToken = response.headers.get('access_token') ?? null;
-        const refreshToken = response.headers.get('refresh_token') ?? null;
-        return [accessToken, refreshToken];
+        const accessTokenExpiry = response.headers.get('access_token_expiry') ?? null;
+        return [accessToken, accessTokenExpiry];
     };
 
     // TODO: Auto update state of poles!

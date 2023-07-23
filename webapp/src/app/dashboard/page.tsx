@@ -6,7 +6,6 @@ export default async function Dashboard() {
     const session = await getServerSession();
 
     if (!session) {
-        // redirect or render something else
         return <main className={styles.main}>Not logged in!</main>
     }
 
