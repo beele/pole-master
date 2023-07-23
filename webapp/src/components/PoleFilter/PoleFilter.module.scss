@@ -1,3 +1,21 @@
 .filter {
-    
+    appearance: none;
+    outline: none;
+
+    width: calc(90% + 50px);
+    height: 30px;
+
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+    font-size: 24px;
+    text-align: center;
+   
+    border-radius: 8px;
+    border: 1px solid rgba(106, 106, 106, 0.2784313725);
+    filter: drop-shadow(1px 1px 10px rgb(220, 220, 220));
+
+    &::placeholder {
+        opacity: 0.5;
+    }
 }
