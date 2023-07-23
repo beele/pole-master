@@ -65,7 +65,7 @@ const nextAuthOptions = (req: NextApiRequest, res: ExpandedNextApiRequest): Auth
                     res.refreshToken = actualTokens[0];
                 }
 
-                if (trigger === 'update' && session.accessToken && session.refreshToken) {
+                if (trigger === 'update' && session.accessToken) {
                     console.log('jwt update trigger');
 
                     token.accessToken = session.accessToken;
@@ -90,7 +90,7 @@ const handler = async (req: NextApiRequest, res: ExpandedNextApiRequest) => {
         const previousSetCookie = response.headers.get('set-cookie');
         response.headers.set(
             'set-cookie',
-            previousSetCookie + ',refresh-token=' + res.refreshToken + '; path=/; HttpOnly; SameSite=lax',
+            previousSetCookie + ',refresh_token=' + res.refreshToken + '; path=/; HttpOnly; SameSite=lax',
         );
     }
     console.log('requested handled');

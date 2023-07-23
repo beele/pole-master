@@ -51,6 +51,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         }
 
         if (isRefreshFlow) {
+            console.log('refresh flow');
             // TODO: Rework the redirect flow, this does not work with next-auth!
             if (refresh_token && !verified_refresh_token) {
                 //response.redirect('/auth/google/?redirect_uri=' + request.url);

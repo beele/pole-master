@@ -27,7 +27,8 @@ export function useUserPoles() {
                 // Set new Access and refresh tokens on the session and update it (so the server side also gets these)!
                 // Recursively call this function again to actually fetch the poles now!
                 update({accessToken, accessTokenExpiry});   
-                return getPolesForUser();
+                // TODO: Test token refresh, this prevent infinite loop!
+                //return getPolesForUser();
             }
         }
 
@@ -37,11 +38,12 @@ export function useUserPoles() {
     };
 
     const performTokenRefresh = async (): Promise<[string | null, string | null]> => {
-        const response = await fetch('http://localhost:3000/auth/refresh', { 
-            credentials: 'include',
+        const response = await axios.get('http://localhost:3000/auth/refresh', {
+            withCredentials: true,
         });
-        const accessToken = response.headers.get('access_token') ?? null;
-        const accessTokenExpiry = response.headers.get('access_token_expiry') ?? null;
+        console.log(response);
+        const accessToken = response.headers.access_token ?? null;
+        const accessTokenExpiry = response.headers.access_token_expiry ?? null;
         return [accessToken, accessTokenExpiry];
     };
 
