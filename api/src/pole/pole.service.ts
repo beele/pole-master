@@ -21,6 +21,8 @@ export class PoleService {
                     'https://map.chargemap.com/pool/drawer/totalenergies-maurits-sabbelaan-antwerpen?locale=nl-nl',
                     'https://map.chargemap.com/pool/drawer/totalenergies-weerstandlaan-hoboken?locale=nl-nl',
                     'https://map.chargemap.com/pool/drawer/totalenergies-alfons-de-cockstraat-antwerpen?locale=nl-nl',
+                    'https://map.chargemap.com/pool/drawer/totalenergies-sint-catharinaplein-antwerpen-kiel?locale=nl-nl',
+                    'https://map.chargemap.com/pool/drawer/totalenergies-lodewijk-de-raetstraat-antwerpen?locale=nl-nl',
                 ])),
             );
 
@@ -91,6 +93,18 @@ export class PoleService {
 
     private async getExistingPoles(): Promise<Pole[]> {
         return await this.dbService.db.pole.findMany();
+    }
+
+    public async getExistingPolesPaginated(lastCursor: string, direction: 'next' | 'prev'): Promise<Pole[]> {
+        return await this.dbService.db.pole.findMany({
+            take: direction === 'next' ? 25 : -25,
+            cursor: {
+              id: lastCursor,
+            },
+            orderBy: {
+              id: 'asc',
+            },
+        });
     }
 
     private async createNonExistingPoles(urls: string[]): Promise<Pole[]> {
